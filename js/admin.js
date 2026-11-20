@@ -162,10 +162,15 @@ $("#memberRows").onclick = async (e) => {
   const m = S.members.find((x) => x.id === btn.dataset.id);
   if (btn.dataset.act === "print") printCards([m]);
   if (btn.dataset.act === "delm" && confirm(`¿Eliminar a ${m.name}? Su código dejará de funcionar.`)) {
-    const b = F.writeBatch(db);
-    b.delete(F.doc(db, "members", m.id));
-    b.delete(F.doc(db, "codes", m.codeHash));
-    await b.commit();
+    try {
+      const b = F.writeBatch(db);
+      b.delete(F.doc(db, "members", m.id));
+      b.delete(F.doc(db, "codes", m.codeHash));
+      await b.commit();
+    } catch (err) {
+      console.error(err);
+      alert("No se pudo quitar a " + m.name + ": " + (err.code || "") + " " + err.message);
+    }
   }
 };
 $("#printAll").onclick = () => S.members.length && printCards(S.members);
