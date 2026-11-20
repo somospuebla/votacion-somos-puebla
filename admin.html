@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Administración · Somos Puebla</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <header class="top">
+    <h1>Administración del voto</h1>
+    <small>Consejo Estatal · Somos Puebla</small>
+  </header>
+  <main>
+    <div id="warn"></div>
+
+    <section id="login" class="card hidden">
+      <h2>Acceso de administrador</h2>
+      <form id="loginForm">
+        <label for="email">Correo</label>
+        <input id="email" type="email" autocomplete="username" required>
+        <label for="pass">Contraseña</label>
+        <input id="pass" type="password" autocomplete="current-password" required>
+        <p id="loginMsg" class="msg-err"></p>
+        <button type="submit">Entrar</button>
+      </form>
+    </section>
+
+    <section id="panel" class="hidden">
+      <div class="row between" style="margin-bottom:12px">
+        <div class="tabs">
+          <button data-tab="polls" class="active">Votaciones</button>
+          <button data-tab="members">Consejeros y códigos</button>
+        </div>
+        <button class="secondary small" id="logout">Salir</button>
+      </div>
+
+      <div id="tab-polls">
+        <form id="pollForm" class="card">
+          <h2>Nueva votación</h2>
+          <label for="pTitle">Asunto</label>
+          <input id="pTitle" type="text" required maxlength="200">
+          <label for="pDesc">Descripción (opcional)</label>
+          <textarea id="pDesc" maxlength="2000"></textarea>
+          <label for="pType">Tipo de voto</label>
+          <select id="pType">
+            <option value="secret">Secreto (no se guarda quién votó qué)</option>
+            <option value="nominal">Nominal (se registra el nombre y el sentido del voto)</option>
+          </select>
+          <label for="pOpts">Opciones (una por línea)</label>
+          <textarea id="pOpts">A favor
+En contra
+Abstención</textarea>
+          <p id="pollMsg" class="msg-err"></p>
+          <button type="submit">Crear (queda en borrador)</button>
+        </form>
+        <div id="pollList"></div>
+      </div>
+
+      <div id="tab-members" class="hidden">
+        <form id="memberForm" class="card">
+          <h2>Agregar consejeros</h2>
+          <p class="muted">Un nombre por línea. Se genera un código único para cada uno.</p>
+          <textarea id="mNames" placeholder="Nombre Apellido&#10;Nombre Apellido"></textarea>
+          <p id="memberMsg" class="msg-err"></p>
+          <button type="submit">Generar códigos</button>
+        </form>
+        <div class="card">
+          <div class="row between"><h2>Padrón (<span id="mCount">0</span>)</h2>
+            <button class="secondary small" id="printAll">Imprimir todas las tarjetas</button></div>
+          <table><thead><tr><th>Nombre</th><th>Código</th><th></th></tr></thead><tbody id="memberRows"></tbody></table>
+        </div>
+      </div>
+    </section>
+  </main>
+  <div id="printArea"></div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script type="module" src="js/admin.js"></script>
+</body>
+</html>
