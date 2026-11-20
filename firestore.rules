@@ -1,0 +1,82 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{db}/documents {
+
+    function signedIn() { return request.auth != null; }
+    function isAdmin() {
+      return signedIn()
+        && request.auth.token.firebase.sign_in_provider == 'password'
+        && exists(/databases/$(db)/documents/admins/$(request.auth.uid));
+    }
+    function pollOf(id) { return get(/databases/$(db)/documents/polls/$(id)).data; }
+    function rank(s) { return s == 'draft' ? 0 : (s == 'open' ? 1 : 2); }
+
+    // Administradores: se crean a mano en la consola (ver README).
+    match /admins/{uid} {
+      allow get: if signedIn() && request.auth.uid == uid;
+    }
+
+    // Código (hash SHA-256) -> consejero. Solo se puede leer conociendo el hash (no listar).
+    match /codes/{hash} {
+      allow get: if signedIn();
+      allow list, write: if isAdmin();
+    }
+
+    // Padrón con códigos en claro, solo para el administrador (reimpresión de tarjetas).
+    match /members/{id} {
+      allow read, write: if isAdmin();
+    }
+
+    match /polls/{id} {
+      allow read: if isAdmin() || (signedIn() && resource.data.status in ['open', 'closed']);
+      allow create: if isAdmin() && request.resource.data.status == 'draft';
+      allow update: if isAdmin()
+        && request.resource.data.options == resource.data.options
+        && request.resource.data.type == resource.data.type
+        && rank(request.resource.data.status) >= rank(resource.data.status);
+      allow delete: if isAdmin() && resource.data.status == 'draft';
+    }
+
+    // Registro de quién ya votó (una vez por código y votación). No contiene el sentido del voto.
+    match /usedCodes/{key} {
+      allow get: if signedIn();
+      allow list: if isAdmin();
+      allow create: if signedIn()
+        && request.resource.data.keys().hasOnly(['pollId', 'codeHash', 'uid', 'name', 'at'])
+        && key == request.resource.data.pollId + '_' + request.resource.data.codeHash
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.at == request.time
+        && exists(/databases/$(db)/documents/codes/$(request.resource.data.codeHash))
+        && get(/databases/$(db)/documents/codes/$(request.resource.data.codeHash)).data.name == request.resource.data.name
+        && pollOf(request.resource.data.pollId).status == 'open'
+        && existsAfter(/databases/$(db)/documents/tickets/$(request.resource.data.pollId + '_' + request.auth.uid));
+    }
+
+    // Boleto: ata la sesión anónima actual a un código válido y no usado (una vez por sesión y votación).
+    match /tickets/{key} {
+      allow create: if signedIn()
+        && request.resource.data.keys().hasOnly(['pollId', 'codeHash'])
+        && key == request.resource.data.pollId + '_' + request.auth.uid
+        && !exists(/databases/$(db)/documents/usedCodes/$(request.resource.data.pollId + '_' + request.resource.data.codeHash))
+        && getAfter(/databases/$(db)/documents/usedCodes/$(request.resource.data.pollId + '_' + request.resource.data.codeHash)).data.uid == request.auth.uid;
+    }
+
+    // Boletas. En votaciones secretas no llevan identidad alguna.
+    match /ballots/{id} {
+      allow read: if isAdmin();
+      allow create: if signedIn()
+        && pollOf(request.resource.data.pollId).status == 'open'
+        && request.resource.data.option in pollOf(request.resource.data.pollId).options
+        && request.resource.data.at == request.time
+        && !exists(/databases/$(db)/documents/tickets/$(request.resource.data.pollId + '_' + request.auth.uid))
+        && existsAfter(/databases/$(db)/documents/tickets/$(request.resource.data.pollId + '_' + request.auth.uid))
+        && (
+          pollOf(request.resource.data.pollId).type == 'secret'
+            ? request.resource.data.keys().hasOnly(['pollId', 'option', 'at'])
+            : (request.resource.data.keys().hasOnly(['pollId', 'option', 'at', 'codeHash', 'name'])
+               && getAfter(/databases/$(db)/documents/tickets/$(request.resource.data.pollId + '_' + request.auth.uid)).data.codeHash == request.resource.data.codeHash
+               && get(/databases/$(db)/documents/codes/$(request.resource.data.codeHash)).data.name == request.resource.data.name)
+        );
+    }
+  }
+}

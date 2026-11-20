@@ -1,0 +1,71 @@
+:root {
+  /* Paleta Somos Puebla: fondos blancos, letras rosa */
+  --bg: #ffffff; --card: #ffffff; --ink: #c2006b; --muted: #d4569a; --line: #f5c2dd;
+  --brand: #d6007a; --brand-ink: #ffffff; --accent: #d6007a; --ok: #c2006b; --bad: #a30055;
+  --radius: 12px;
+}
+* { box-sizing: border-box; }
+body { margin: 0; font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--ink); }
+header.top { background: #fff; color: var(--brand); padding: 14px 16px; border-bottom: 3px solid var(--brand); }
+header.top h1 { margin: 0; font-size: 1.15rem; }
+header.top small { opacity: .85; }
+main { max-width: 760px; margin: 0 auto; padding: 16px; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; margin-bottom: 14px; }
+.card.warn { border-color: var(--accent); }
+h2 { margin: 0 0 8px; font-size: 1.1rem; }
+.muted { color: var(--muted); font-size: .9rem; }
+label { display: block; font-weight: 600; margin: 10px 0 4px; }
+input[type=text], input[type=email], input[type=password], select, textarea {
+  width: 100%; padding: 10px 12px; font: inherit; color: var(--ink); background: var(--bg);
+  border: 1px solid var(--line); border-radius: 8px;
+}
+textarea { min-height: 90px; resize: vertical; }
+.code-input { font-size: 1.4rem; letter-spacing: .15em; text-align: center; text-transform: uppercase; }
+button, .btn {
+  font: inherit; font-weight: 600; cursor: pointer; border: 0; border-radius: 8px; padding: 10px 16px;
+  background: var(--brand); color: var(--brand-ink);
+}
+button.secondary { background: transparent; color: var(--ink); border: 1px solid var(--line); }
+button.danger { background: var(--bad); color: #fff; }
+button.small { padding: 6px 10px; font-size: .85rem; }
+button:disabled { opacity: .5; cursor: not-allowed; }
+.row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.row.between { justify-content: space-between; }
+.badge { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: .75rem; font-weight: 700; border: 1px solid var(--line); }
+.badge.open { background: var(--brand); color: #fff; border-color: var(--brand); }
+.badge.closed { background: #fff; color: var(--muted); }
+.badge.draft { background: #fff; color: var(--ink); border-style: dashed; }
+.opt { display: flex; gap: 10px; align-items: center; padding: 12px; border: 1px solid var(--line); border-radius: 10px; margin: 6px 0; cursor: pointer; font-weight: 600; }
+.opt input { width: 20px; height: 20px; }
+.opt:has(input:checked) { border-color: var(--brand); background: color-mix(in srgb, var(--brand) 10%, transparent); }
+.bar-row { margin: 10px 0; }
+.bar-label { display: flex; justify-content: space-between; gap: 8px; }
+.bar { height: 12px; background: var(--line); border-radius: 99px; overflow: hidden; }
+.bar span { display: block; height: 100%; background: var(--brand); }
+.lead .bar span { background: #8f0052; }
+input::placeholder, textarea::placeholder { color: var(--muted); opacity: .7; }
+.voters { font-size: .85rem; color: var(--muted); margin: 4px 0 0; }
+.msg-err { color: var(--bad); font-weight: 600; }
+.msg-ok { color: var(--ok); font-weight: 600; }
+table { width: 100%; border-collapse: collapse; font-size: .92rem; }
+th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+code.code { font-size: 1rem; font-weight: 700; letter-spacing: .08em; }
+.tabs { display: flex; gap: 6px; margin-bottom: 14px; }
+.tabs button { background: transparent; color: var(--ink); border: 1px solid var(--line); }
+.tabs button.active { background: var(--brand); color: var(--brand-ink); border-color: var(--brand); }
+footer { text-align: center; padding: 20px 16px 40px; color: var(--muted); font-size: .8rem; }
+.hidden { display: none !important; }
+details { margin-top: 8px; }
+summary { cursor: pointer; font-weight: 600; }
+
+/* Impresión de tarjetas */
+#printArea { display: none; }
+@media print {
+  body > *:not(#printArea) { display: none !important; }
+  #printArea { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; padding: 0; }
+  .pcard { border: 1.5px dashed #444; border-radius: 10px; padding: 14px; text-align: center; break-inside: avoid; color: #000; background: #fff; }
+  .pcard h3 { margin: 0 0 2px; font-size: 1rem; }
+  .pcard .pcode { font-size: 1.5rem; font-weight: 800; letter-spacing: .12em; margin: 6px 0; }
+  .pcard .qr { display: flex; justify-content: center; margin: 8px 0; }
+  .pcard p { margin: 2px 0; font-size: .75rem; }
+}
